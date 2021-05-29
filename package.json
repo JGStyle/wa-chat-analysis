@@ -9,10 +9,12 @@
   },
   "dependencies": {
     "@geist-ui/react": "^2.1.5",
+    "@geist-ui/react-icons": "^1.0.1",
     "chart.js": "^3.3.0",
     "next": "10.2.3",
     "react": "17.0.2",
     "react-chartjs-2": "^3.0.3",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "whatsapp-chat-parser": "^3.1.2"
   }
 }

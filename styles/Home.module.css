@@ -35,6 +35,19 @@
 }
 
 .graph {
-  width: 24rem;
-  height: 24rem;
+  width: 130%;
+  height: 130%;
+  margin: -35px;
+  margin-top: 20px;
+}
+
+.footer {
+  margin-top: 6rem;
+  text-align: center;
+}
+
+.hr {
+  background-color: grey;
+  height: .2rem;
+  border-radius: 3px;
 }

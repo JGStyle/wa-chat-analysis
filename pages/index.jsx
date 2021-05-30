@@ -1,78 +1,112 @@
-import { Text, Spacer, Progress } from "@geist-ui/react";
+import { Text, Spacer, Progress, Button, Checkbox } from "@geist-ui/react";
 import { CheckInCircleFill } from "@geist-ui/react-icons"
 import { useEffect, useState } from "react";
-import { Doughnut } from "react-chartjs-2";
+import { Doughnut, Bar } from "react-chartjs-2";
 import styles from "../styles/Home.module.css";
 const whatsapp = require("whatsapp-chat-parser")
 
 export default function Home() {
+  const [file, setFile] = useState([])
+  const [contacts, setContacts] = useState([])
+  const [chooseContacts, setChooseContacts] = useState(false)
+
   const [progress, setProgress] = useState(0)
   const [analyseProgress, setAnalyseProgress] = useState(0)
 
   const [displayAll, setDisplayAll] = useState(false);
 
+  // Block 1
   const [totalMessages, setTotalMessages] = useState(0)
   const [mostMessagesCount, setMostMessagesCount] = useState(0)
   const [mostMessagesAuthor, setMostMessagesAuthor] = useState("")
   const [countData, setCountData] = useState({});
 
+  // Block 2
+  const [totalWords, setTotalWords] = useState(0)
+  const [averageWords, setAverageWords] = useState(0)
+  const [averageWordsData, setAverageWordsData] = useState({})
 
-  function processData(content) {
+  function processData(messages) {
     let zip = (...a) => a[0].map((_, n) => a.map((b) => b[n]));
-    whatsapp.parseString(content)
-    .then(messages => {
-      setAnalyseProgress(100);
-      setTotalMessages(messages.length)
-      const dataPreset = {
-        labels: [],
-        datasets: [
-          {
-            data: [],
-            backgroundColor: [
-              "#4dc9f6",
-              "#f67019",
-              "#f53794",
-              "#537bc4",
-              "#acc236",
-              "#166a8f",
-              "#00a950",
-              "#58595b",
-              "#8549ba",
-            ],
-          },
-        ],
-      };
+    setAnalyseProgress(100);
+    setTotalMessages(messages.length)
+    const dataPreset = {
+      labels: [],
+      datasets: [
+        {
+          data: [],
+          backgroundColor: [
+            "#4dc9f6",
+            "#f67019",
+            "#f53794",
+            "#537bc4",
+            "#acc236",
+            "#166a8f",
+            "#00a950",
+            "#58595b",
+            "#8549ba",
+          ],
+        },
+      ],
+    };
+    // ANALISE AMOUNT OF TOTAL MESSAGES
+    let countdata = JSON.parse(JSON.stringify(dataPreset))
+    // ANALISE AMOUNT OF WORDS
+    let worddata = JSON.parse(JSON.stringify(dataPreset))
+    let totalwords = 0
+    let countwordspersonwiseAuthors = []
+    let countwordspersonwiseAmount = []
+    for (let i = 0; i < messages.length; i++) {
+      let message = messages[i];
       // ANALISE AMOUNT OF TOTAL MESSAGES
-      let countdata = JSON.parse(JSON.stringify(dataPreset));
-      for (let i = 0; i < messages.length; i++) {
-        let message = messages[i];
-        // ANALISE AMOUNT OF TOTAL MESSAGES
-        if (countdata.labels.includes(message.author)) {
-          console.log("true");
-          const index = countdata.labels.indexOf(message.author);
-          countdata.datasets[0].data[index] += 1;
-        } else {
-          countdata.labels.push(message.author);
-          countdata.datasets[0].data.push(1);
-        }
+      if (countdata.labels.includes(message.author)) {
+        const index = countdata.labels.indexOf(message.author);
+        countdata.datasets[0].data[index] += 1;
+      } else {
+        countdata.labels.push(message.author);
+        countdata.datasets[0].data.push(1);
       }
 
-      let labels = countdata.labels;
-      let data = countdata.datasets[0].data;
+      // ANALISE AMOUNT OF WORDS
+      let amountwords = message.message.split(' ').length
+      totalwords += amountwords
+      if (countwordspersonwiseAuthors.includes(message.author)) {
+        countwordspersonwiseAmount[countwordspersonwiseAuthors.indexOf(message.author)] += amountwords
+      } else {
+        countwordspersonwiseAuthors.push(message.author)
+        countwordspersonwiseAmount.push(amountwords)
+      }
 
-      [labels, data] = zip(...zip(labels, data).sort((x, y) => y[1] - x[1]));
+    }
 
-      countdata.labels = labels;
-      countdata.datasets[0].data = data;
-      setMostMessagesAuthor(labels[0])
-      setMostMessagesCount(data[0])
-      setCountData(countdata);
+    // ANALISE AMOUNT OF TOTAL MESSAGES
+    let labels = countdata.labels;
+    let data = countdata.datasets[0].data;
+    // INSERT ANALISYS OF W
+    for (let i = 0; i < countwordspersonwiseAmount.length; i++) {
+      countwordspersonwiseAmount[i] = (countwordspersonwiseAmount[i] / data[i]).toFixed(2)
+    }
+    // END INSERT
 
-      setDisplayAll(true);
-    })
-    .catch(err => {
-      console.log(err)
-    })
+    [labels, data] = zip(...zip(labels, data).sort((x, y) => y[1] - x[1]));
+
+    countdata.labels = labels;
+    countdata.datasets[0].data = data;
+    setMostMessagesAuthor(labels[0])
+    setMostMessagesCount(data[0])
+    setCountData(countdata);
+
+    //ANALISE AMOUNT OF WORDS
+
+    worddata.labels = countwordspersonwiseAuthors
+    worddata.datasets[0].data = countwordspersonwiseAmount
+    console.log(worddata)
+
+    setAverageWordsData(worddata)
+    setTotalWords(totalwords)
+    setAverageWords((totalwords/messages.length).toPrecision(2))
+
+    setDisplayAll(true);
   }
 
   useEffect(() => {
@@ -92,7 +126,15 @@ export default function Home() {
     reader.addEventListener('load', (event) => {
       let res = event.target.result
       setProgress(100)
-      processData(res)
+      whatsapp.parseString(res)
+      .then(messages => {
+        setFile(messages)
+        getContacts(messages)
+        setChooseContacts(true)
+      })
+      .catch(err => {
+        console.log(err)
+      })
     })
     reader.addEventListener('progress', (event) => {
       if (event.loaded && event.total) {
@@ -100,7 +142,27 @@ export default function Home() {
       }
     });
     reader.readAsText(path)
+  }
+
+  function getContacts(msgs) {
+    let contacts = []
+    for (let i = 0; i < msgs.length; i++) {
+      let message = msgs[i]
+      if(contacts.includes(message.author)) {
+        continue
+      }
+      else {
+        contacts.push(message.author)
+      }
     }
+    setContacts(contacts)
+  }
+
+  function initializeAnalyzation() {
+    setChooseContacts(false)
+    // TODO: filter all unchecked contacts out of array, give that to method
+    processData(file)
+  }
 
   return (
     <div className={styles.maincontainer}>
@@ -131,14 +193,32 @@ export default function Home() {
         Analise Data {analyseProgress > 99 && <CheckInCircleFill />}{" "}
       </Text>
       <Progress type="success" value={analyseProgress} />
-      <Spacer y={0.5} />
-      <hr className={styles.hr}/>
+      <Spacer y={1.5} />
+      {chooseContacts &&
+        <div>
+          <Text h3>Please choose all contacts to be included. (Uncheck the group name and System)</Text>
+          <div>
+            {contacts.map((contact, index) => (
+              <Checkbox size="medium" checked={true} key={index} id={index} className={styles.block}>{contact}</Checkbox>
+            ))}
+          </div>
+          <Spacer y={1} />
+          <Button shadow type="success" onClick={initializeAnalyzation}>I'm done.</Button>
+          <Spacer y={0.5} />
+        </div>
+      }
+
       {displayAll && ( ( (
         <div className={styles.maincontent}>
           <Text p>Out of all {totalMessages} messages → with {mostMessagesCount} messages, {mostMessagesAuthor} sent the most messages making up for {Math.floor(mostMessagesCount/totalMessages *100)}%.</Text>
           <div className={styles.graph}>
             <Doughnut data={countData} width={50} height={50} />
           </div>
+          <Text p>On average, every message contained {averageWords} words. With {averageWordsData.datasets[0].data[0]} average words, {averageWordsData.labels[0]} uses the most words.</Text>
+          <div className={styles.graph}>
+            <Bar data={averageWordsData} width={50} height={50}></Bar>
+          </div>
+
         </div>
       )))}
       <footer className={styles.footer}>Made with Heart by JGS.</footer>

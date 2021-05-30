@@ -3,6 +3,10 @@
   padding: 40px;
 }
 
+.maincontainer h1 {
+  line-height: 54px;
+}
+
 .fileinput {
   display: none;
 }
@@ -35,10 +39,11 @@
 }
 
 .graph {
-  width: 130%;
-  height: 130%;
+  width: 125%;
+  height: 125%;
   margin: -35px;
   margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .footer {
@@ -50,4 +55,9 @@
   background-color: grey;
   height: .2rem;
   border-radius: 3px;
+}
+
+.block{
+  display: block !important;
+  margin-bottom: 7px;
 }

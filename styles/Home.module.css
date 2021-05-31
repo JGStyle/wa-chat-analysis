@@ -39,8 +39,8 @@
 }
 
 .graph {
-  width: 125%;
-  height: 125%;
+  width: auto;
+  height: auto;
   margin: -35px;
   margin-top: 20px;
   margin-bottom: 20px;

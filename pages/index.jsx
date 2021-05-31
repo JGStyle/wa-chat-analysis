@@ -225,12 +225,8 @@ export default function Home() {
       <Spacer y={1.5} />
       {chooseContacts && (
         <div className={styles.contactcontainer}>
-          <Text h3>
-            Please choose all contacts to be included.
-          </Text>
-          <Text h4>
-           (Uncheck groupname and System)
-          </Text>
+          <Text h3>Please choose all contacts to be included.</Text>
+          <Text h4>(Uncheck groupname and System)</Text>
           <Checkbox.Group onChange={contactshandler} value={[]}>
             {contacts.map((contact, index) => (
               <Checkbox
@@ -264,18 +260,21 @@ export default function Home() {
           <Text p>
             On average, every message contained {averageWords} words. With{" "}
             {averageWordsData.datasets[0].data[0]} average words,{" "}
-            {averageWordsData.labels[0]} uses the most words.
-            In total, {totalWords} words were sent.
+            {averageWordsData.labels[0]} uses the most words. In total,{" "}
+            {totalWords} words were sent.
           </Text>
           <div className={styles.graph}>
             <Bar data={averageWordsData} width={50} height={50}></Bar>
           </div>
+          <Text p>Total amount of words</Text>
           <div className={styles.graph}>
             <Bar data={absoluteWordsData} width={50} height={50}></Bar>
           </div>
         </div>
       )}
-      <footer className={styles.footer}>Made with Heart by <a href="https://github.com/JGStyle">JGS.</a></footer>
+      <footer className={styles.footer}>
+        Made with Heart by <a href="https://github.com/JGStyle">JGS.</a>
+      </footer>
     </div>
   );
 }

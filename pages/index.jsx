@@ -1,9 +1,12 @@
 import { Text, Spacer, Progress, Button, Checkbox } from "@geist-ui/react";
 import { CheckInCircleFill } from "@geist-ui/react-icons"
+import { markAssetError } from "next/dist/client/route-loader";
 import { useEffect, useState } from "react";
 import { Doughnut, Bar } from "react-chartjs-2";
 import styles from "../styles/Home.module.css";
 const whatsapp = require("whatsapp-chat-parser")
+const emojiRegexRGI = require("emoji-regex/RGI_Emoji.js")
+const matchWords = /[a-zA-Z0-9_'\u0392-\u03c9\u0400-\u04FF]+|[\u4E00-\u9FFF\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af\u0400-\u04FF]+|[\u00E4\u00C4\u00E5\u00C5\u00F6\u00D6]+|[\u00C0-\u017F]+|\w+/g
 
 export default function Home() {
   const [file, setFile] = useState([])
@@ -16,23 +19,22 @@ export default function Home() {
 
   const [displayAll, setDisplayAll] = useState(false);
 
-  // Block 1
+  // Block 1 (1 chart)
   const [totalMessages, setTotalMessages] = useState(0)
   const [mostMessagesCount, setMostMessagesCount] = useState(0)
   const [mostMessagesAuthor, setMostMessagesAuthor] = useState("")
   const [countData, setCountData] = useState({});
 
-  // Block 2
+  // Block 2 (2 charts)
   const [totalWords, setTotalWords] = useState(0)
   const [averageWords, setAverageWords] = useState(0)
   const [averageWordsData, setAverageWordsData] = useState({})
   const [absoluteWordsData, setAbsoluteWordsData] = useState({})
 
   function processData(messages) {
-    console.log(messages);
-    let zip = (...a) => a[0].map((_, n) => a.map((b) => b[n]));
-    setAnalyseProgress(100);
-    setTotalMessages(messages.length);
+    let zip = (...a) => a[0].map((_, n) => a.map((b) => b[n]))
+    setAnalyseProgress(100)
+    setTotalMessages(messages.length)
     const dataPreset = {
       labels: [],
       datasets: [
@@ -53,13 +55,16 @@ export default function Home() {
       ],
     };
     // ANALISE AMOUNT OF TOTAL MESSAGES
-    let countdata = JSON.parse(JSON.stringify(dataPreset));
+    let countdata = JSON.parse(JSON.stringify(dataPreset))
     // ANALISE AMOUNT OF WORDS
-    let worddata = JSON.parse(JSON.stringify(dataPreset));
-    let absoluteworddata = JSON.parse(JSON.stringify(dataPreset));
-    let totalwords = 0;
-    let countwordspersonwiseAuthors = [];
-    let countwordspersonwiseAmount = [];
+    let worddata = JSON.parse(JSON.stringify(dataPreset))
+    let absoluteworddata = JSON.parse(JSON.stringify(dataPreset))
+    let totalwords = 0
+    let countwordspersonwiseAuthors = []
+    let countwordspersonwiseAmount = []
+    // ANALISE WORDS THEMSELVES
+    let wordcontentdata = JSON.parse(JSON.stringify(dataPreset))
+    let wordcontentobj = {}
     for (let i = 0; i < messages.length; i++) {
       let message = messages[i];
       // ANALISE AMOUNT OF TOTAL MESSAGES
@@ -72,7 +77,10 @@ export default function Home() {
       }
 
       // ANALISE AMOUNT OF WORDS
-      let amountwords = message.message.split(" ").length;
+      let words = message.message.split(" ")
+      console.log(message.message.match(matchWords))
+      console.log((message.message))
+      let amountwords = words.length;
       totalwords += amountwords;
       if (countwordspersonwiseAuthors.includes(message.author)) {
         countwordspersonwiseAmount[
@@ -82,6 +90,16 @@ export default function Home() {
         countwordspersonwiseAuthors.push(message.author);
         countwordspersonwiseAmount.push(amountwords);
       }
+
+      // ANLISE WORDS THEMSELVES
+      words.forEach(word => {
+        if (Object.keys(wordcontentobj).includes(word)) {
+          wordcontentobj[word] += 1
+        } else {
+          wordcontentobj[word] = 1
+        }
+      });
+
     }
 
     // ANALISE AMOUNT OF TOTAL MESSAGES
@@ -121,6 +139,10 @@ export default function Home() {
     setAverageWordsData(worddata);
     setTotalWords(totalwords);
     setAverageWords((totalwords / messages.length).toPrecision(2));
+
+    // ANALISE WORDS THEMSELVES
+
+    console.log(wordcontentobj)
 
     setDisplayAll(true);
   }
@@ -260,13 +282,13 @@ export default function Home() {
           <Text p>
             On average, every message contained {averageWords} words. With{" "}
             {averageWordsData.datasets[0].data[0]} average words,{" "}
-            {averageWordsData.labels[0]} uses the most words. In total,{" "}
-            {totalWords} words were sent.
+            {averageWordsData.labels[0]} uses the most words. 
           </Text>
           <div className={styles.graph}>
             <Bar data={averageWordsData} width={50} height={50}></Bar>
           </div>
-          <Text p>Total amount of words</Text>
+          <Text p>In total,{" "}
+            {totalWords} words were sent.</Text>
           <div className={styles.graph}>
             <Bar data={absoluteWordsData} width={50} height={50}></Bar>
           </div>

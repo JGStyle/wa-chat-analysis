@@ -1,12 +1,12 @@
 import { Text, Spacer, Progress, Button, Checkbox } from "@geist-ui/react";
 import { CheckInCircleFill } from "@geist-ui/react-icons"
-import { markAssetError } from "next/dist/client/route-loader";
 import { useEffect, useState } from "react";
 import { Doughnut, Bar } from "react-chartjs-2";
 import styles from "../styles/Home.module.css";
 const whatsapp = require("whatsapp-chat-parser")
-const emojiRegexRGI = require("emoji-regex/RGI_Emoji.js")
-const matchWords = /[a-zA-Z0-9_'\u0392-\u03c9\u0400-\u04FF]+|[\u4E00-\u9FFF\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af\u0400-\u04FF]+|[\u00E4\u00C4\u00E5\u00C5\u00F6\u00D6]+|[\u00C0-\u017F]+|\w+/g
+const emojiRegexRGI = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g
+const emojiRegex = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|[\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|[\ud83c[\ude32-\ude3a]|[\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g
+const matchWords = /[a-zA-Z_\u00C0-\u017F]+/g
 
 export default function Home() {
   const [file, setFile] = useState([])
@@ -30,6 +30,18 @@ export default function Home() {
   const [averageWords, setAverageWords] = useState(0)
   const [averageWordsData, setAverageWordsData] = useState({})
   const [absoluteWordsData, setAbsoluteWordsData] = useState({})
+
+  // Block 3 (1 chart)
+  const [uniqueWords, setUniqueWords] = useState(0)
+  const [wordContentData, setWordContentData] = useState({})
+
+  // Block 4 ()
+  const [mostUsedEmoji, setMostUsedEmoji] = useState('')
+  const [absolutEmojiData, setAbsolutEmojiData] = useState({})
+  const [emojiPersonwise, setEmojiPersonwise] = useState([])
+  const [emojiAuthors, setEmojiAuthors] = useState([])
+  const [mostEmojisCount, setMostEmojisCount] = useState(0)
+  const [mostEmojisAuthor, setMostEmojisAuthor] = useState("")
 
   function processData(messages) {
     let zip = (...a) => a[0].map((_, n) => a.map((b) => b[n]))
@@ -64,7 +76,17 @@ export default function Home() {
     let countwordspersonwiseAmount = []
     // ANALISE WORDS THEMSELVES
     let wordcontentdata = JSON.parse(JSON.stringify(dataPreset))
-    let wordcontentobj = {}
+    let wordsnames = []
+    let wordsamount = []
+    let wordsblacklist = ["anhang", "photo", "jpg", "weggelassen", "bild", "image", "omitted", "png", "sticker", "webp", "nachricht", "gelöscht", "deleted", "message"]
+    // ANALISE EMOJIS
+    let emojidata = JSON.parse(JSON.stringify(dataPreset))
+    let emojiid = []
+    let emojicount = []
+
+    let emojipersonwise = []
+    let emojiauthors = []
+
     for (let i = 0; i < messages.length; i++) {
       let message = messages[i];
       // ANALISE AMOUNT OF TOTAL MESSAGES
@@ -77,29 +99,69 @@ export default function Home() {
       }
 
       // ANALISE AMOUNT OF WORDS
-      let words = message.message.split(" ")
-      console.log(message.message.match(matchWords))
-      console.log((message.message))
-      let amountwords = words.length;
-      totalwords += amountwords;
-      if (countwordspersonwiseAuthors.includes(message.author)) {
-        countwordspersonwiseAmount[
-          countwordspersonwiseAuthors.indexOf(message.author)
-        ] += amountwords;
-      } else {
-        countwordspersonwiseAuthors.push(message.author);
-        countwordspersonwiseAmount.push(amountwords);
+      let words = message.message.match(matchWords);
+      if (words) {
+        let amountwords = words.length;
+        totalwords += amountwords;
+
+        if (countwordspersonwiseAuthors.includes(message.author)) {
+          const index = countwordspersonwiseAuthors.indexOf(message.author)
+          countwordspersonwiseAmount[index] += amountwords;
+        } else {
+          countwordspersonwiseAuthors.push(message.author);
+          countwordspersonwiseAmount.push(amountwords);
+        }
+      }
+      else{
+      if (!(countwordspersonwiseAuthors.includes(message.author))) {
+          countwordspersonwiseAuthors.push(message.author);
+          countwordspersonwiseAmount.push(0);
+        }
       }
 
       // ANLISE WORDS THEMSELVES
-      words.forEach(word => {
-        if (Object.keys(wordcontentobj).includes(word)) {
-          wordcontentobj[word] += 1
-        } else {
-          wordcontentobj[word] = 1
-        }
-      });
+      if (words) {
+        words.forEach((word) => {
+          if(!(wordsblacklist.includes(word))){
+            if (wordsnames.includes(word)) {
+              wordsamount[wordsnames.indexOf(word)] += 1
+            }
+            else {
+              wordsnames.push(word)
+              wordsamount.push(1)
+            }
+          }
+        })
+      }
 
+      // ANALISE EMOJIS
+      let emojis = message.message.match(emojiRegex)
+      if (emojis) {
+        emojis.forEach(emoji => {
+          if(emojiid.includes(emoji)){
+            emojicount[emojiid.indexOf(emoji)] += 1
+          }
+          else {
+            emojiid.push(emoji)
+            emojicount.push(1)
+          } 
+
+          if(emojiauthors.includes(message.author)) {
+            if(Object.keys(emojipersonwise[emojiauthors.indexOf(message.author)]).includes(emoji)){
+              emojipersonwise[emojiauthors.indexOf(message.author)][emoji] +=1
+            }
+            else {
+              emojipersonwise[emojiauthors.indexOf(message.author)][emoji] =1
+            }
+          }
+          else {
+            emojiauthors.push(message.author)
+            let o = {}
+            o[emoji] = 1
+            emojipersonwise.push(o)
+          }
+        })
+      }
     }
 
     // ANALISE AMOUNT OF TOTAL MESSAGES
@@ -112,6 +174,7 @@ export default function Home() {
     });
     [absoluteworddata.labels, absoluteworddata.datasets[0].data] = zip(...zip(absoluteworddata.labels, absoluteworddata.datasets[0].data).sort((x, y) => y[1] - x[1]));
     setAbsoluteWordsData(absoluteworddata)
+
     for (let i = 0; i < countwordspersonwiseAmount.length; i++) {
       countwordspersonwiseAmount[i] = (
         countwordspersonwiseAmount[i] / data[i]
@@ -141,8 +204,65 @@ export default function Home() {
     setAverageWords((totalwords / messages.length).toPrecision(2));
 
     // ANALISE WORDS THEMSELVES
+    setUniqueWords(Object.keys(wordsamount).length);
 
-    console.log(wordcontentobj)
+    [wordsnames, wordsamount] = zip(
+      ...zip(wordsnames, wordsamount).sort(
+        (x, y) => y[1] - x[1]
+      )
+    );
+    wordsnames = wordsnames.splice(0,8)
+    wordsamount = wordsamount.splice(0,8)
+    wordcontentdata.labels = wordsnames
+    wordcontentdata.datasets[0].data = wordsamount
+    setWordContentData(wordcontentdata);
+
+
+    // EMOJI ANALYSIS
+    [emojiid, emojicount] = zip(
+      ...zip(emojiid, emojicount).sort(
+        (x, y) => y[1] - x[1]
+      )
+    )
+    emojiid = emojiid.splice(0,8)
+    emojicount = emojicount.splice(0,8)
+    emojidata.labels = emojiid
+    emojidata.datasets[0].data = emojicount
+
+    setAbsolutEmojiData(emojidata)
+    setMostUsedEmoji(emojiid[0])
+
+    let individualEmojis = []
+
+    console.log(emojiauthors)
+    console.log(emojipersonwise)
+    emojiauthors.forEach(author => {
+      let count = 0
+      let pecount = emojipersonwise[emojiauthors.indexOf(author)]
+      for (let i = 0; i < Object.keys(emojipersonwise[emojiauthors.indexOf(author)]).length; i++) {
+        try {
+          count += pecount[Object.keys(pecount)[i]]
+        } catch(err) {
+          console.log(err)
+        }
+      }
+      console.log("count ", count)
+      if (count > mostEmojisCount) {
+        setMostEmojisAuthor(author)
+        setMostEmojisCount(count)
+      }
+
+      // sort by size
+      individualEmojis.push(Object.keys(emojipersonwise[emojiauthors.indexOf(author)]).map(key => {
+        [key, emojipersonwise[emojiauthors.indexOf(author)][key]]
+      }).sort((a, b) => {
+        return b[1]-a[1]
+      }).splice(0, 3))
+    });
+    console.log(individualEmojis)
+
+    setEmojiAuthors(emojiAuthors)
+    setEmojiPersonwise(emojiPersonwise)
 
     setDisplayAll(true);
   }
@@ -204,6 +324,7 @@ export default function Home() {
     let c = limitedContacts;
     for (let i = file.length - 1; i >= 0; i--) {
       const msg = file[i];
+      data[i].message = msg.message.toLowerCase()
       if (!c.includes(msg.author)) {
         data.splice(i, 1);
       }
@@ -248,7 +369,7 @@ export default function Home() {
       {chooseContacts && (
         <div className={styles.contactcontainer}>
           <Text h3>Please choose all contacts to be included.</Text>
-          <Text h4>(Uncheck groupname and System)</Text>
+          <Text h4>(If present, Uncheck groupname and System)</Text>
           <Checkbox.Group onChange={contactshandler} value={[]}>
             {contacts.map((contact, index) => (
               <Checkbox
@@ -285,13 +406,23 @@ export default function Home() {
             {averageWordsData.labels[0]} uses the most words. 
           </Text>
           <div className={styles.graph}>
-            <Bar data={averageWordsData} width={50} height={50}></Bar>
+            <Bar data={averageWordsData} width={50} height={50} options={{plugins:{legend:{display:false}}}}></Bar>
           </div>
           <Text p>In total,{" "}
             {totalWords} words were sent.</Text>
           <div className={styles.graph}>
-            <Bar data={absoluteWordsData} width={50} height={50}></Bar>
+            <Bar data={absoluteWordsData} width={50} height={50} options={{plugins:{legend:{display:false}}}}></Bar>
           </div>
+          <Text p>{uniqueWords} unique words were used</Text>
+          <div className={styles.graph}>
+            <Bar data={wordContentData} options={{indexAxis: 'y', plugins:{legend:{display:false}}}} width={50} height={50}></Bar>
+          </div>
+          <Text h1 className={styles.single}>{mostUsedEmoji}</Text>
+          <Text p className={styles.single}>is the most used emoji.</Text>
+          <div className={styles.graph}>
+            <Bar data={absolutEmojiData} options={{indexAxis: 'y', plugins:{legend:{display:false}}}} width={50} height={50}></Bar>
+          </div>
+          <Text p>{mostEmojisAuthor} is the emoji king. With {mostEmojisCount} emojis, she/he sent the most.</Text>
         </div>
       )}
       <footer className={styles.footer}>

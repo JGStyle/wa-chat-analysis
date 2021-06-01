@@ -47,7 +47,7 @@
 }
 
 .footer {
-  margin-top: 6rem;
+  margin-top: 3rem;
   text-align: center;
 }
 
@@ -78,3 +78,8 @@
 .single {
   display: block;
 }
+
+.wfull {
+  width: 100% !important;
+}
+

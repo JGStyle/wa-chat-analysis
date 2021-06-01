@@ -1,53 +1,57 @@
-import { Text, Spacer, Progress, Button, Checkbox, Table, Collapse } from "@geist-ui/react";
-import { CheckInCircleFill } from "@geist-ui/react-icons"
+import {Text, Spacer, Progress, Button, Checkbox, Table, Collapse, Modal } from "@geist-ui/react";
+import { CheckInCircleFill } from "@geist-ui/react-icons";
 import { useEffect, useState } from "react";
 import { Doughnut, Bar } from "react-chartjs-2";
 import styles from "../styles/Home.module.css";
-const whatsapp = require("whatsapp-chat-parser")
-const emojiRegexRGI = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g
-const emojiRegex = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|[\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|[\ud83c[\ude32-\ude3a]|[\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g
-const matchWords = /[a-zA-Z_\u00C0-\u017F]+/g
+const whatsapp = require("whatsapp-chat-parser");;
+const emojiRegex =
+  /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|[\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|[\ud83c[\ude32-\ude3a]|[\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
+const matchWords = /[a-zA-Z_\u00C0-\u017F]+/g;
 
 export default function Home() {
-  const [file, setFile] = useState([])
-  const [contacts, setContacts] = useState([])
-  const [chooseContacts, setChooseContacts] = useState(false)
+  // Modal How to
+  const [modalActive, setModalActive] = useState(false)
+
+  // General
+  const [file, setFile] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const [chooseContacts, setChooseContacts] = useState(false);
   const [limitedContacts, setLimitedContacts] = useState([]);
 
-  const [progress, setProgress] = useState(0)
-  const [analyseProgress, setAnalyseProgress] = useState(0)
+  const [progress, setProgress] = useState(0);
+  const [analyseProgress, setAnalyseProgress] = useState(0);
 
   const [displayAll, setDisplayAll] = useState(false);
 
-  // Block 1 (1 chart)
-  const [totalMessages, setTotalMessages] = useState(0)
-  const [mostMessagesCount, setMostMessagesCount] = useState(0)
-  const [mostMessagesAuthor, setMostMessagesAuthor] = useState("")
+  // Block 1 (1 chart) Message Analysis
+  const [totalMessages, setTotalMessages] = useState(0);
+  const [mostMessagesCount, setMostMessagesCount] = useState(0);
+  const [mostMessagesAuthor, setMostMessagesAuthor] = useState("");
   const [countData, setCountData] = useState({});
 
-  // Block 2 (2 charts)
-  const [totalWords, setTotalWords] = useState(0)
-  const [averageWords, setAverageWords] = useState(0)
-  const [averageWordsData, setAverageWordsData] = useState({})
-  const [absoluteWordsData, setAbsoluteWordsData] = useState({})
+  // Block 2 (2 charts) Words analysis
+  const [totalWords, setTotalWords] = useState(0);
+  const [averageWords, setAverageWords] = useState(0);
+  const [averageWordsData, setAverageWordsData] = useState({});
+  const [absoluteWordsData, setAbsoluteWordsData] = useState({});
 
-  // Block 3 (1 chart)
-  const [uniqueWords, setUniqueWords] = useState(0)
-  const [wordContentData, setWordContentData] = useState({})
+  // Block 3 (1 chart) Words content analysis
+  const [uniqueWords, setUniqueWords] = useState(0);
+  const [wordContentData, setWordContentData] = useState({});
 
-  // Block 4 ()
-  const [mostUsedEmoji, setMostUsedEmoji] = useState('')
-  const [absolutEmojiData, setAbsolutEmojiData] = useState({})
-  const [emojiPersonwise, setEmojiPersonwise] = useState([])
-  const [emojiAuthors, setEmojiAuthors] = useState([])
-  const [mostEmojisCount, setMostEmojisCount] = useState(0)
-  const [mostEmojisAuthor, setMostEmojisAuthor] = useState("")
-  const [indivEmojis, setIndivEmojis] = useState([])
+  // Block 4 () Emoji analysis
+  const [mostUsedEmoji, setMostUsedEmoji] = useState("");
+  const [absolutEmojiData, setAbsolutEmojiData] = useState({});
+  const [emojiPersonwise, setEmojiPersonwise] = useState([]);
+  const [emojiAuthors, setEmojiAuthors] = useState([]);
+  const [mostEmojisCount, setMostEmojisCount] = useState(0);
+  const [mostEmojisAuthor, setMostEmojisAuthor] = useState("");
+  const [indivEmojis, setIndivEmojis] = useState([]);
 
   function processData(messages) {
-    let zip = (...a) => a[0].map((_, n) => a.map((b) => b[n]))
-    setAnalyseProgress(100)
-    setTotalMessages(messages.length)
+    let zip = (...a) => a[0].map((_, n) => a.map((b) => b[n]));
+    setAnalyseProgress(100);
+    setTotalMessages(messages.length);
     const dataPreset = {
       labels: [],
       datasets: [
@@ -68,25 +72,40 @@ export default function Home() {
       ],
     };
     // ANALISE AMOUNT OF TOTAL MESSAGES
-    let countdata = JSON.parse(JSON.stringify(dataPreset))
+    let countdata = JSON.parse(JSON.stringify(dataPreset));
     // ANALISE AMOUNT OF WORDS
-    let worddata = JSON.parse(JSON.stringify(dataPreset))
-    let absoluteworddata = JSON.parse(JSON.stringify(dataPreset))
-    let totalwords = 0
-    let countwordspersonwiseAuthors = []
-    let countwordspersonwiseAmount = []
+    let worddata = JSON.parse(JSON.stringify(dataPreset));
+    let absoluteworddata = JSON.parse(JSON.stringify(dataPreset));
+    let totalwords = 0;
+    let countwordspersonwiseAuthors = [];
+    let countwordspersonwiseAmount = [];
     // ANALISE WORDS THEMSELVES
-    let wordcontentdata = JSON.parse(JSON.stringify(dataPreset))
-    let wordsnames = []
-    let wordsamount = []
-    let wordsblacklist = ["anhang", "photo", "jpg", "weggelassen", "bild", "image", "omitted", "png", "sticker", "webp", "nachricht", "gelöscht", "deleted", "message"]
+    let wordcontentdata = JSON.parse(JSON.stringify(dataPreset));
+    let wordsnames = [];
+    let wordsamount = [];
+    let wordsblacklist = [
+      "anhang",
+      "photo",
+      "jpg",
+      "weggelassen",
+      "bild",
+      "image",
+      "omitted",
+      "png",
+      "sticker",
+      "webp",
+      "nachricht",
+      "gelöscht",
+      "deleted",
+      "message",
+    ];
     // ANALISE EMOJIS
-    let emojidata = JSON.parse(JSON.stringify(dataPreset))
-    let emojiid = []
-    let emojicount = []
+    let emojidata = JSON.parse(JSON.stringify(dataPreset));
+    let emojiid = [];
+    let emojicount = [];
 
-    let emojipersonwise = []
-    let emojiauthors = []
+    let emojipersonwise = [];
+    let emojiauthors = [];
 
     for (let i = 0; i < messages.length; i++) {
       let message = messages[i];
@@ -106,15 +125,14 @@ export default function Home() {
         totalwords += amountwords;
 
         if (countwordspersonwiseAuthors.includes(message.author)) {
-          const index = countwordspersonwiseAuthors.indexOf(message.author)
+          const index = countwordspersonwiseAuthors.indexOf(message.author);
           countwordspersonwiseAmount[index] += amountwords;
         } else {
           countwordspersonwiseAuthors.push(message.author);
           countwordspersonwiseAmount.push(amountwords);
         }
-      }
-      else{
-      if (!(countwordspersonwiseAuthors.includes(message.author))) {
+      } else {
+        if (!countwordspersonwiseAuthors.includes(message.author)) {
           countwordspersonwiseAuthors.push(message.author);
           countwordspersonwiseAmount.push(0);
         }
@@ -123,45 +141,45 @@ export default function Home() {
       // ANLISE WORDS THEMSELVES
       if (words) {
         words.forEach((word) => {
-          if(!(wordsblacklist.includes(word))){
+          if (!wordsblacklist.includes(word)) {
             if (wordsnames.includes(word)) {
-              wordsamount[wordsnames.indexOf(word)] += 1
-            }
-            else {
-              wordsnames.push(word)
-              wordsamount.push(1)
+              wordsamount[wordsnames.indexOf(word)] += 1;
+            } else {
+              wordsnames.push(word);
+              wordsamount.push(1);
             }
           }
-        })
+        });
       }
 
       // ANALISE EMOJIS
-      let emojis = message.message.match(emojiRegex)
+      let emojis = message.message.match(emojiRegex);
       if (emojis) {
-        emojis.forEach(emoji => {
-          if(emojiid.includes(emoji)){
-            emojicount[emojiid.indexOf(emoji)] += 1
+        emojis.forEach((emoji) => {
+          if (emojiid.includes(emoji)) {
+            emojicount[emojiid.indexOf(emoji)] += 1;
+          } else {
+            emojiid.push(emoji);
+            emojicount.push(1);
           }
-          else {
-            emojiid.push(emoji)
-            emojicount.push(1)
-          } 
 
-          if(emojiauthors.includes(message.author)) {
-            if(Object.keys(emojipersonwise[emojiauthors.indexOf(message.author)]).includes(emoji)){
-              emojipersonwise[emojiauthors.indexOf(message.author)][emoji] +=1
+          if (emojiauthors.includes(message.author)) {
+            if (
+              Object.keys(
+                emojipersonwise[emojiauthors.indexOf(message.author)]
+              ).includes(emoji)
+            ) {
+              emojipersonwise[emojiauthors.indexOf(message.author)][emoji] += 1;
+            } else {
+              emojipersonwise[emojiauthors.indexOf(message.author)][emoji] = 1;
             }
-            else {
-              emojipersonwise[emojiauthors.indexOf(message.author)][emoji] =1
-            }
+          } else {
+            emojiauthors.push(message.author);
+            let o = {};
+            o[emoji] = 1;
+            emojipersonwise.push(o);
           }
-          else {
-            emojiauthors.push(message.author)
-            let o = {}
-            o[emoji] = 1
-            emojipersonwise.push(o)
-          }
-        })
+        });
       }
     }
 
@@ -169,12 +187,16 @@ export default function Home() {
     let labels = countdata.labels;
     let data = countdata.datasets[0].data;
     // INSERT ANALISYS OF WORDS
-    absoluteworddata.labels = countwordspersonwiseAuthors
-    countwordspersonwiseAmount.forEach(element => {
-      absoluteworddata.datasets[0].data.push(element)
+    absoluteworddata.labels = countwordspersonwiseAuthors;
+    countwordspersonwiseAmount.forEach((element) => {
+      absoluteworddata.datasets[0].data.push(element);
     });
-    [absoluteworddata.labels, absoluteworddata.datasets[0].data] = zip(...zip(absoluteworddata.labels, absoluteworddata.datasets[0].data).sort((x, y) => y[1] - x[1]));
-    setAbsoluteWordsData(absoluteworddata)
+    [absoluteworddata.labels, absoluteworddata.datasets[0].data] = zip(
+      ...zip(absoluteworddata.labels, absoluteworddata.datasets[0].data).sort(
+        (x, y) => y[1] - x[1]
+      )
+    );
+    setAbsoluteWordsData(absoluteworddata);
 
     for (let i = 0; i < countwordspersonwiseAmount.length; i++) {
       countwordspersonwiseAmount[i] = (
@@ -208,37 +230,32 @@ export default function Home() {
     setUniqueWords(Object.keys(wordsamount).length);
 
     [wordsnames, wordsamount] = zip(
-      ...zip(wordsnames, wordsamount).sort(
-        (x, y) => y[1] - x[1]
-      )
+      ...zip(wordsnames, wordsamount).sort((x, y) => y[1] - x[1])
     );
-    wordsnames = wordsnames.splice(0,8)
-    wordsamount = wordsamount.splice(0,8)
-    wordcontentdata.labels = wordsnames
-    wordcontentdata.datasets[0].data = wordsamount
+    wordsnames = wordsnames.splice(0, 8);
+    wordsamount = wordsamount.splice(0, 8);
+    wordcontentdata.labels = wordsnames;
+    wordcontentdata.datasets[0].data = wordsamount;
     setWordContentData(wordcontentdata);
-
 
     // EMOJI ANALYSIS
     [emojiid, emojicount] = zip(
-      ...zip(emojiid, emojicount).sort(
-        (x, y) => y[1] - x[1]
-      )
-    )
-    emojiid = emojiid.splice(0,8)
-    emojicount = emojicount.splice(0,8)
-    emojidata.labels = emojiid
-    emojidata.datasets[0].data = emojicount
+      ...zip(emojiid, emojicount).sort((x, y) => y[1] - x[1])
+    );
+    emojiid = emojiid.splice(0, 8);
+    emojicount = emojicount.splice(0, 8);
+    emojidata.labels = emojiid;
+    emojidata.datasets[0].data = emojicount;
 
-    setAbsolutEmojiData(emojidata)
-    setMostUsedEmoji(emojiid[0])
+    setAbsolutEmojiData(emojidata);
+    setMostUsedEmoji(emojiid[0]);
 
-    let individualEmojis = []
+    let individualEmojis = [];
 
     let mostemojiscount = 0;
-    emojiauthors.forEach(author => {
-      let count = 0
-      let pecount = emojipersonwise[emojiauthors.indexOf(author)]
+    emojiauthors.forEach((author) => {
+      let count = 0;
+      let pecount = emojipersonwise[emojiauthors.indexOf(author)];
       let pecountlist = Object.keys(pecount);
       for (let i = 0; i < pecountlist.length; i++) {
         try {
@@ -262,73 +279,73 @@ export default function Home() {
       });
       newarr = newarr.splice(0, 3);
       newarr.forEach((element, index) => {
-        let obj = {}
-        obj.author = element[0]
-        obj.emoji = element[1]
-        obj.count = element[2]
-        obj.index = index + 1
-        individualEmojis.push(obj)
+        let obj = {};
+        obj.author = element[0];
+        obj.emoji = element[1];
+        obj.count = element[2];
+        obj.index = index + 1;
+        individualEmojis.push(obj);
       });
     });
 
-    console.log(individualEmojis)
-    setIndivEmojis(individualEmojis)
+    console.log(individualEmojis);
+    setIndivEmojis(individualEmojis);
 
-    setEmojiAuthors(emojiAuthors)
-    setEmojiPersonwise(emojiPersonwise)
+    setEmojiAuthors(emojiAuthors);
+    setEmojiPersonwise(emojiPersonwise);
 
     setDisplayAll(true);
   }
 
   useEffect(() => {
-    const fileSelector = document.getElementById('wafile')
-    fileSelector.addEventListener('change', (event) => {
-      const file = event.target.files
+    const fileSelector = document.getElementById("wafile");
+    fileSelector.addEventListener("change", (event) => {
+      const file = event.target.files;
       try {
-        readFile(file[0])
-      } catch(err) {
-        console.log(err)
-      } 
-    })
-  }, [])
-
-  function readFile(path) {
-    const reader = new FileReader()
-    reader.addEventListener('load', (event) => {
-      let res = event.target.result
-      setProgress(100)
-      whatsapp.parseString(res)
-      .then(messages => {
-        setFile(messages)
-        getContacts(messages)
-        setChooseContacts(true)
-      })
-      .catch(err => {
-        console.log(err)
-      })
-    })
-    reader.addEventListener('progress', (event) => {
-      if (event.loaded && event.total) {
-        setProgress(event.loaded/event.total *100)
+        readFile(file[0]);
+      } catch (err) {
+        console.log(err);
       }
     });
-    reader.readAsText(path)
+  }, []);
+
+  function readFile(path) {
+    const reader = new FileReader();
+    reader.addEventListener("load", (event) => {
+      let res = event.target.result;
+      setProgress(100);
+      whatsapp
+        .parseString(res)
+        .then((messages) => {
+          setFile(messages);
+          getContacts(messages);
+          setChooseContacts(true);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
+    reader.addEventListener("progress", (event) => {
+      if (event.loaded && event.total) {
+        setProgress((event.loaded / event.total) * 100);
+      }
+    });
+    reader.readAsText(path);
   }
 
   function getContacts(msgs) {
-    let contacts = []
+    let contacts = [];
     for (let i = 0; i < msgs.length; i++) {
-      let message = msgs[i]
-      if(contacts.includes(message.author)) {
-        continue
-      }
-      else {
-        contacts.push(message.author)
+      let message = msgs[i];
+      if (contacts.includes(message.author)) {
+        continue;
+      } else {
+        contacts.push(message.author);
       }
     }
-    setContacts(contacts)
-    document.body.scrollTop = 0
-    document.documentElement.scrollTop = 0
+    setContacts(contacts);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
   }
 
   function initializeAnalyzation() {
@@ -337,17 +354,23 @@ export default function Home() {
     let c = limitedContacts;
     for (let i = file.length - 1; i >= 0; i--) {
       const msg = file[i];
-      data[i].message = msg.message.toLowerCase()
+      data[i].message = msg.message.toLowerCase();
       if (!c.includes(msg.author)) {
         data.splice(i, 1);
       }
     }
     processData(data);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
   }
 
   function contactshandler(value) {
     setLimitedContacts(value);
   }
+
+  const activateModal = () => setModalActive(true)
+  const closeModal = () => setModalActive(false)
+  
 
   return (
     <div className={styles.maincontainer}>
@@ -416,26 +439,58 @@ export default function Home() {
           <Text p>
             On average, every message contained {averageWords} words. With{" "}
             {averageWordsData.datasets[0].data[0]} average words,{" "}
-            {averageWordsData.labels[0]} uses the most words. 
+            {averageWordsData.labels[0]} uses the most words.
           </Text>
           <div className={styles.graph}>
-            <Bar data={averageWordsData} width={50} height={50} options={{plugins:{legend:{display:false}}}}></Bar>
+            <Bar
+              data={averageWordsData}
+              width={50}
+              height={50}
+              options={{ plugins: { legend: { display: false } } }}
+            ></Bar>
           </div>
-          <Text p>In total,{" "}
-            {totalWords} words were sent.</Text>
+          <Text p>In total, {totalWords} words were sent.</Text>
           <div className={styles.graph}>
-            <Bar data={absoluteWordsData} width={50} height={50} options={{plugins:{legend:{display:false}}}}></Bar>
+            <Bar
+              data={absoluteWordsData}
+              width={50}
+              height={50}
+              options={{ plugins: { legend: { display: false } } }}
+            ></Bar>
           </div>
           <Text p>{uniqueWords} unique words were used</Text>
           <div className={styles.graph}>
-            <Bar data={wordContentData} options={{indexAxis: 'y', plugins:{legend:{display:false}}}} width={50} height={50}></Bar>
+            <Bar
+              data={wordContentData}
+              options={{
+                indexAxis: "y",
+                plugins: { legend: { display: false } },
+              }}
+              width={50}
+              height={50}
+            ></Bar>
           </div>
-          <Text h1 className={styles.single}>{mostUsedEmoji}</Text>
-          <Text p className={styles.single}>is the most used emoji.</Text>
+          <Text h1 className={styles.single}>
+            {mostUsedEmoji}
+          </Text>
+          <Text p className={styles.single}>
+            is the most used emoji.
+          </Text>
           <div className={styles.graph}>
-            <Bar data={absolutEmojiData} options={{indexAxis: 'y', plugins:{legend:{display:false}}}} width={50} height={50}></Bar>
+            <Bar
+              data={absolutEmojiData}
+              options={{
+                indexAxis: "y",
+                plugins: { legend: { display: false } },
+              }}
+              width={50}
+              height={50}
+            ></Bar>
           </div>
-          <Text p>{mostEmojisAuthor} is the emoji king. With {mostEmojisCount} emojis, she/he sent the most.</Text>
+          <Text p>
+            {mostEmojisAuthor} is the emoji king. With {mostEmojisCount} emojis,
+            she/he sent the most.
+          </Text>
           <Collapse title="Top 3 emojis by person">
             <Table data={indivEmojis}>
               <Table.Column prop="author" label="person"></Table.Column>
@@ -446,7 +501,32 @@ export default function Home() {
           </Collapse>
         </div>
       )}
+      <Modal open={modalActive} onClose={closeModal}>
+        <Modal.Title>How to?</Modal.Title>
+        <Modal.Subtitle>Explanation</Modal.Subtitle>
+        <Modal.Content>
+          <Text p> 
+          Disclaimer: No data is being sent to any server at any time. All calculation
+          happens locally on your device.
+          (Group chats supported!)
+          </Text>
+          <Text p>On iOS: Open Whatsapp → Open the chat you want to analise →
+          Tap on the chat name, scroll down → Select Export chat → Choose without media.
+          </Text>
+          <Text p>On Android: Open Whatsapp → Open the chat you want to analise →
+          Tap on More options → More → Export chat → Choose without media.
+          </Text>
+          <Text p>
+          Save the file on your device. If it is a .zip just tap on it once to get the .txt file!
+          Normally, the file name should be "_chat.txt"
+          </Text>
+        </Modal.Content>
+        <Modal.Action passive onClick={closeModal}>Close</Modal.Action>
+      </Modal>
       <footer className={styles.footer}>
+        <Button shadow type="success" onClick={activateModal} className={styles.wfull}>
+        How to?
+        </Button>
         Made with Heart by <a href="https://github.com/JGStyle">JGS.</a>
       </footer>
     </div>

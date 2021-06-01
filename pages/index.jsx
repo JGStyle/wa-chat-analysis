@@ -1,4 +1,4 @@
-import { Text, Spacer, Progress, Button, Checkbox } from "@geist-ui/react";
+import { Text, Spacer, Progress, Button, Checkbox, Table, Collapse } from "@geist-ui/react";
 import { CheckInCircleFill } from "@geist-ui/react-icons"
 import { useEffect, useState } from "react";
 import { Doughnut, Bar } from "react-chartjs-2";
@@ -42,6 +42,7 @@ export default function Home() {
   const [emojiAuthors, setEmojiAuthors] = useState([])
   const [mostEmojisCount, setMostEmojisCount] = useState(0)
   const [mostEmojisAuthor, setMostEmojisAuthor] = useState("")
+  const [indivEmojis, setIndivEmojis] = useState([])
 
   function processData(messages) {
     let zip = (...a) => a[0].map((_, n) => a.map((b) => b[n]))
@@ -234,32 +235,44 @@ export default function Home() {
 
     let individualEmojis = []
 
-    console.log(emojiauthors)
-    console.log(emojipersonwise)
+    let mostemojiscount = 0;
     emojiauthors.forEach(author => {
       let count = 0
       let pecount = emojipersonwise[emojiauthors.indexOf(author)]
-      for (let i = 0; i < Object.keys(emojipersonwise[emojiauthors.indexOf(author)]).length; i++) {
+      let pecountlist = Object.keys(pecount);
+      for (let i = 0; i < pecountlist.length; i++) {
         try {
-          count += pecount[Object.keys(pecount)[i]]
-        } catch(err) {
-          console.log(err)
+          count += pecount[pecountlist[i]];
+        } catch (err) {
+          console.log(err);
         }
       }
-      console.log("count ", count)
-      if (count > mostEmojisCount) {
-        setMostEmojisAuthor(author)
-        setMostEmojisCount(count)
+      if (count > mostemojiscount) {
+        mostemojiscount = count;
+        setMostEmojisAuthor(author);
+        setMostEmojisCount(count);
       }
 
-      // sort by size
-      individualEmojis.push(Object.keys(emojipersonwise[emojiauthors.indexOf(author)]).map(key => {
-        [key, emojipersonwise[emojiauthors.indexOf(author)][key]]
-      }).sort((a, b) => {
-        return b[1]-a[1]
-      }).splice(0, 3))
+      let newarr = [];
+      for (let i = 0; i < pecountlist.length; i++) {
+        newarr.push([author, pecountlist[i], pecount[pecountlist[i]]]);
+      }
+      newarr.sort((a, b) => {
+        return b[2] - a[2];
+      });
+      newarr = newarr.splice(0, 3);
+      newarr.forEach((element, index) => {
+        let obj = {}
+        obj.author = element[0]
+        obj.emoji = element[1]
+        obj.count = element[2]
+        obj.index = index + 1
+        individualEmojis.push(obj)
+      });
     });
+
     console.log(individualEmojis)
+    setIndivEmojis(individualEmojis)
 
     setEmojiAuthors(emojiAuthors)
     setEmojiPersonwise(emojiPersonwise)
@@ -423,6 +436,14 @@ export default function Home() {
             <Bar data={absolutEmojiData} options={{indexAxis: 'y', plugins:{legend:{display:false}}}} width={50} height={50}></Bar>
           </div>
           <Text p>{mostEmojisAuthor} is the emoji king. With {mostEmojisCount} emojis, she/he sent the most.</Text>
+          <Collapse title="Top 3 emojis by person">
+            <Table data={indivEmojis}>
+              <Table.Column prop="author" label="person"></Table.Column>
+              <Table.Column prop="count" label="amount"></Table.Column>
+              <Table.Column prop="index" label="place"></Table.Column>
+              <Table.Column prop="emoji" label="emoji"></Table.Column>
+            </Table>
+          </Collapse>
         </div>
       )}
       <footer className={styles.footer}>

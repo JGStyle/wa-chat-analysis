@@ -1,16 +1,33 @@
-import {Text, Spacer, Progress, Button, Checkbox, Table, Collapse, Modal } from "@geist-ui/react";
+import {
+  Text,
+  Spacer,
+  Progress,
+  Button,
+  Checkbox,
+  Table,
+  Collapse,
+  Modal,
+} from "@geist-ui/react";
 import { CheckInCircleFill } from "@geist-ui/react-icons";
 import { useEffect, useState } from "react";
-import { Doughnut, Bar } from "react-chartjs-2";
+import { Doughnut, Bar, Line } from "react-chartjs-2";
 import styles from "../styles/Home.module.css";
-const whatsapp = require("whatsapp-chat-parser");;
+const whatsapp = require("whatsapp-chat-parser");
 const emojiRegex =
   /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|[\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|[\ud83c[\ude32-\ude3a]|[\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
 const matchWords = /[a-zA-Z_\u00C0-\u017F]+/g;
+const matchWordsIncludingNumbers = /[a-zA-Z_\u00C0-\u017F]+|\w+/g;
+
+/*
+  author: Josef Schmid aka JGS <jgs@jws.de>
+  I made this on vacation, within 3 days.
+  Dont be surprised about the bad structured and unmaintainable code,
+  this project is just for fun and taken seriously.
+*/
 
 export default function Home() {
   // Modal How to
-  const [modalActive, setModalActive] = useState(false)
+  const [modalActive, setModalActive] = useState(false);
 
   // General
   const [file, setFile] = useState([]);
@@ -47,6 +64,11 @@ export default function Home() {
   const [mostEmojisCount, setMostEmojisCount] = useState(0);
   const [mostEmojisAuthor, setMostEmojisAuthor] = useState("");
   const [indivEmojis, setIndivEmojis] = useState([]);
+
+  // Block 5 () Time analysis#
+  const [dayData, setDayData] = useState({});
+  const [busiestDay, setBusiestDay] = useState("");
+  const [amountBusiestDay, setAmountBusiestDay] = useState(0);
 
   function processData(messages) {
     let zip = (...a) => a[0].map((_, n) => a.map((b) => b[n]));
@@ -106,6 +128,12 @@ export default function Home() {
 
     let emojipersonwise = [];
     let emojiauthors = [];
+
+    // ANALISE TIME
+
+    let daydata = JSON.parse(JSON.stringify(dataPreset));
+    let daylabels = [];
+    let daycount = [];
 
     for (let i = 0; i < messages.length; i++) {
       let message = messages[i];
@@ -180,6 +208,23 @@ export default function Home() {
             emojipersonwise.push(o);
           }
         });
+      }
+
+      // ANALISE TIME
+      let monthAndDay = String(message.date)
+        .match(matchWordsIncludingNumbers)
+        .splice(1, 3)
+        .join(" ");
+      if (daylabels.includes(monthAndDay)) {
+        console.log("her");
+        daycount[daylabels.indexOf(monthAndDay)] += 1;
+      } else {
+        daylabels.push(monthAndDay);
+        daycount.push(1);
+      }
+
+      if (i === 1) {
+        console.log(String(message.date));
       }
     }
 
@@ -288,11 +333,29 @@ export default function Home() {
       });
     });
 
-    console.log(individualEmojis);
     setIndivEmojis(individualEmojis);
 
     setEmojiAuthors(emojiAuthors);
     setEmojiPersonwise(emojiPersonwise);
+
+    // ANALISE TIME
+    daydata.labels = daylabels;
+    daydata.datasets[0].data = daycount;
+    daydata.datasets[0].backgroundColor = "rgb(255, 99, 132)";
+    daydata.datasets[0].borderColor = "rgba(255, 99, 132, 0.2)";
+    setDayData(daydata);
+
+    let biggest = 0;
+    let i = 0;
+    daycount.forEach((count, index) => {
+      if (count >= biggest) {
+        biggest = count;
+        i = index;
+      }
+    });
+
+    setAmountBusiestDay(biggest);
+    setBusiestDay(daylabels[i]);
 
     setDisplayAll(true);
   }
@@ -368,9 +431,8 @@ export default function Home() {
     setLimitedContacts(value);
   }
 
-  const activateModal = () => setModalActive(true)
-  const closeModal = () => setModalActive(false)
-  
+  const activateModal = () => setModalActive(true);
+  const closeModal = () => setModalActive(false);
 
   return (
     <div className={styles.maincontainer}>
@@ -431,7 +493,8 @@ export default function Home() {
           <Text p>
             Out of all {totalMessages} messages → with {mostMessagesCount}{" "}
             messages, {mostMessagesAuthor} sent the most messages making up for{" "}
-            {Math.floor((mostMessagesCount / totalMessages) * 100)}%.
+            {Math.floor((mostMessagesCount / totalMessages) * 100)}
+            %.
           </Text>
           <div className={styles.graph}>
             <Doughnut data={countData} width={50} height={50} />
@@ -446,7 +509,9 @@ export default function Home() {
               data={averageWordsData}
               width={50}
               height={50}
-              options={{ plugins: { legend: { display: false } } }}
+              options={{
+                plugins: { legend: { display: false } },
+              }}
             ></Bar>
           </div>
           <Text p>In total, {totalWords} words were sent.</Text>
@@ -455,7 +520,9 @@ export default function Home() {
               data={absoluteWordsData}
               width={50}
               height={50}
-              options={{ plugins: { legend: { display: false } } }}
+              options={{
+                plugins: { legend: { display: false } },
+              }}
             ></Bar>
           </div>
           <Text p>{uniqueWords} unique words were used</Text>
@@ -499,33 +566,55 @@ export default function Home() {
               <Table.Column prop="emoji" label="emoji"></Table.Column>
             </Table>
           </Collapse>
+
+          <Text p>
+            {amountBusiestDay} messages were sent on {busiestDay} which makes it
+            the busiest day
+          </Text>
+          <div className={styles.graph}>
+            <Line
+              data={dayData}
+              options={{
+                plugins: { legend: { display: false } },
+              }}
+            ></Line>
+          </div>
         </div>
       )}
       <Modal open={modalActive} onClose={closeModal}>
         <Modal.Title>How to?</Modal.Title>
         <Modal.Subtitle>Explanation</Modal.Subtitle>
         <Modal.Content>
-          <Text p> 
-          Disclaimer: No data is being sent to any server at any time. All calculation
-          happens locally on your device.
-          (Group chats supported!)
-          </Text>
-          <Text p>On iOS: Open Whatsapp → Open the chat you want to analise →
-          Tap on the chat name, scroll down → Select Export chat → Choose without media.
-          </Text>
-          <Text p>On Android: Open Whatsapp → Open the chat you want to analise →
-          Tap on More options → More → Export chat → Choose without media.
+          <Text p>
+            Disclaimer: No data is being sent to any server at any time. All
+            calculation happens locally on your device. (Group chats supported!)
           </Text>
           <Text p>
-          Save the file on your device. If it is a .zip just tap on it once to get the .txt file!
-          Normally, the file name should be "_chat.txt"
+            On iOS: Open Whatsapp → Open the chat you want to analise → Tap on
+            the chat name, scroll down → Select Export chat → Choose without
+            media.
+          </Text>
+          <Text p>
+            On Android: Open Whatsapp → Open the chat you want to analise → Tap
+            on More options → More → Export chat → Choose without media.
+          </Text>
+          <Text p>
+            Save the file on your device. If it is a .zip just tap on it once to
+            get the .txt file! Normally, the file name should be "_chat.txt"
           </Text>
         </Modal.Content>
-        <Modal.Action passive onClick={closeModal}>Close</Modal.Action>
+        <Modal.Action passive onClick={closeModal}>
+          Close
+        </Modal.Action>
       </Modal>
       <footer className={styles.footer}>
-        <Button shadow type="success" onClick={activateModal} className={styles.wfull}>
-        How to?
+        <Button
+          shadow
+          type="success"
+          onClick={activateModal}
+          className={styles.wfull}
+        >
+          How to?
         </Button>
         Made with Heart by <a href="https://github.com/JGStyle">JGS.</a>
       </footer>

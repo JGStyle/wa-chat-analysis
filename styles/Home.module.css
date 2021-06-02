@@ -1,6 +1,21 @@
-
 .maincontainer {
   padding: 35px;
+}
+
+@media only screen and (min-width: 600px) {
+  .maincontainer {
+    padding: 35px;
+    padding-left: 15%;
+    padding-right: 15%;
+  }
+}
+
+@media only screen and (min-width: 800px) {
+  .maincontainer {
+    padding: 35px;
+    padding-left: 25%;
+    padding-right: 25%;
+  }
 }
 
 .maincontainer h1 {
@@ -27,7 +42,8 @@
   justify-content: center;
   text-align: center;
   white-space: nowrap;
-  transition: background-color 200ms ease 0ms, box-shadow 200ms ease 0ms, border 200ms ease 0ms, color 200ms ease 0ms;
+  transition: background-color 200ms ease 0ms, box-shadow 200ms ease 0ms,
+    border 200ms ease 0ms, color 200ms ease 0ms;
   position: relative;
   overflow: hidden;
   color: rgb(255, 255, 255);
@@ -53,11 +69,11 @@
 
 .hr {
   background-color: grey;
-  height: .2rem;
+  height: 0.2rem;
   border-radius: 3px;
 }
 
-.block{
+.block {
   width: 100% !important;
   justify-content: left !important;
   margin-bottom: 7px;
@@ -74,7 +90,6 @@
   padding: 35px;
 }
 
-
 .single {
   display: block;
 }
@@ -82,4 +97,3 @@
 .wfull {
   width: 100% !important;
 }
-

@@ -542,6 +542,20 @@ export default function Home() {
     <div>
       <Head>
         <title>Analyze your whatsapp chats.</title>
+        <meta
+          name="description"
+          content="analyze your whatsapp chats easily and securly using this tool."
+        />
+        <meta property="og:title" content="Whatsapp Chat analyzation" />
+        <meta property="og:url" content="https://whatsapp.jgs.codes/" />
+        <meta
+          property="og:description"
+          content="Quickly, easily and securly analyze your whatsapp chats."
+        />
+        <meta
+          property="og:image"
+          content="https://whatsapp.jgs.codes/preview.jpg"
+        />
       </Head>
       <div className={styles.maincontainer}>
         <Text h1>Whatsapp chat analysis</Text>

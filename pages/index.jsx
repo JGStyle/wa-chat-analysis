@@ -35,6 +35,7 @@ export default function Home() {
   const [contacts, setContacts] = useState([]);
   const [chooseContacts, setChooseContacts] = useState(false);
   const [limitedContacts, setLimitedContacts] = useState([]);
+  const [allChecked, setAllChecked] = useState(true); // Unfortunately necessary
 
   const [progress, setProgress] = useState(0);
   const [analyseProgress, setAnalyseProgress] = useState(0);
@@ -535,12 +536,23 @@ export default function Home() {
     setLimitedContacts(value);
   }
 
+  const checkAllContacts = (contacts) => {
+    setAllChecked(checked => !checked);
+    console.log(allChecked);
+    if(allChecked) {
+      setLimitedContacts(contacts);
+    } else {
+      setLimitedContacts([]);
+    }
+  }
+
   const activateModal = () => setModalActive(true);
   const closeModal = () => setModalActive(false);
 
   return (
     <div>
       <Head>
+
         <title>Analyze your whatsapp chats.</title>
         <meta
           name="description"
@@ -582,7 +594,7 @@ export default function Home() {
         <Spacer y={0.5} />
 
         <Text h3>
-          Analise Data {analyseProgress > 99 && <CheckInCircleFill />}{" "}
+          Analyse Data {analyseProgress > 99 && <CheckInCircleFill />}{" "}
         </Text>
         <Progress type="success" value={analyseProgress} />
         <Spacer y={1.5} />
@@ -590,16 +602,22 @@ export default function Home() {
           <div className={styles.contactcontainer}>
             <Text h3>Please choose all contacts to be included.</Text>
             <Text h4>(If present, Uncheck groupname and System)</Text>
-            <Checkbox.Group onChange={contactshandler} value={[]}>
+            <Checkbox
+              size="large"
+              onClick={() => checkAllContacts(contacts)}
+            >
+              Check all contacts
+            </Checkbox>
+            <Checkbox.Group onChange={contactshandler} value={limitedContacts}>
               {contacts.map((contact, index) => (
-                <Checkbox
-                  size="large"
-                  key={index}
-                  value={contact}
-                  className={styles.block}
-                >
-                  {contact}
-                </Checkbox>
+                  <Checkbox
+                    size="large"
+                    key={index}
+                    value={contact}
+                    className={styles.block}
+                  >
+                    {contact}
+                  </Checkbox>
               ))}
             </Checkbox.Group>
             <Spacer y={1} />
@@ -738,12 +756,12 @@ export default function Home() {
               publically available(https://link.jgs.codes/RdlsmDq)
             </Text>
             <Text p>
-              On iOS: Open Whatsapp → Open the chat you want to analise → Tap on
+              On iOS: Open Whatsapp → Open the chat you want to analyse → Tap on
               the chat name, scroll down → Select Export chat → Choose without
               media.
             </Text>
             <Text p>
-              On Android: Open Whatsapp → Open the chat you want to analise →
+              On Android: Open Whatsapp → Open the chat you want to analyse →
               Tap on More options → More → Export chat → Choose without media.
             </Text>
             <Text p b>

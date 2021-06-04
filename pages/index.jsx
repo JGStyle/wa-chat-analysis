@@ -55,6 +55,9 @@ export default function Home() {
   // Block 3 (1 chart) Words content analysis
   const [uniqueWords, setUniqueWords] = useState(0);
   const [wordContentData, setWordContentData] = useState({});
+  const [longestWord, setLongestWord] = useState("");
+  const [longestWordAuthor, setLongestWordAuthor] = useState("");
+  const [longestWordDate, setLongestWordDate] = useState("");
 
   // Block 4 () Emoji analysis
   const [mostUsedEmoji, setMostUsedEmoji] = useState("");
@@ -65,10 +68,13 @@ export default function Home() {
   const [mostEmojisAuthor, setMostEmojisAuthor] = useState("");
   const [indivEmojis, setIndivEmojis] = useState([]);
 
-  // Block 5 () Time analysis#
+  // Block 5 (4 charts) Time analysis#
   const [dayData, setDayData] = useState({});
   const [busiestDay, setBusiestDay] = useState("");
   const [amountBusiestDay, setAmountBusiestDay] = useState(0);
+  const [hoursData, setHoursData] = useState({});
+  const [weekDayData, setWeekDayData] = useState({});
+  const [monthData, setMonthData] = useState({});
 
   function processData(messages) {
     let zip = (...a) => a[0].map((_, n) => a.map((b) => b[n]));
@@ -121,6 +127,9 @@ export default function Home() {
       "deleted",
       "message",
     ];
+    let longestword = "";
+    let longestwordauthor = "";
+    let longestworddate = "";
     // ANALISE EMOJIS
     let emojidata = JSON.parse(JSON.stringify(dataPreset));
     let emojiid = [];
@@ -130,10 +139,39 @@ export default function Home() {
     let emojiauthors = [];
 
     // ANALISE TIME
-
     let daydata = JSON.parse(JSON.stringify(dataPreset));
     let daylabels = [];
     let daycount = [];
+
+    let hoursdata = JSON.parse(JSON.stringify(dataPreset));
+    let hourslabels = [];
+    let hourscount = [];
+
+    let weekdaydata = JSON.parse(JSON.stringify(dataPreset));
+    let weekdaylabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    let weekdaycount = [0, 0, 0, 0, 0, 0, 0];
+
+    let monthdata = JSON.parse(JSON.stringify(dataPreset));
+    let monthlabels = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    let monthcount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    for (let i = 0; i < 24; i++) {
+      hourslabels.push(i);
+      hourscount.push(0);
+    }
 
     for (let i = 0; i < messages.length; i++) {
       let message = messages[i];
@@ -177,6 +215,15 @@ export default function Home() {
               wordsamount.push(1);
             }
           }
+          let wordlength = word.length;
+          if (wordlength > longestword.length) {
+            longestword = word;
+            longestwordauthor = message.author;
+            longestworddate = String(message.date)
+              .match(matchWordsIncludingNumbers)
+              .splice(0, 4)
+              .join(" ");
+          }
         });
       }
 
@@ -216,16 +263,32 @@ export default function Home() {
         .splice(1, 3)
         .join(" ");
       if (daylabels.includes(monthAndDay)) {
-        console.log("her");
         daycount[daylabels.indexOf(monthAndDay)] += 1;
       } else {
         daylabels.push(monthAndDay);
         daycount.push(1);
       }
 
-      if (i === 1) {
-        console.log(String(message.date));
-      }
+      let hour = String(message.date)
+        .match(matchWordsIncludingNumbers)
+        .splice(4, 1)
+        .join("");
+
+      hourscount[parseInt(hour)] += 1;
+
+      let weekday = String(message.date)
+        .match(matchWordsIncludingNumbers)
+        .splice(0, 1)
+        .join("");
+
+      weekdaycount[weekdaylabels.indexOf(weekday)] += 1;
+
+      let month = String(message.date)
+        .match(matchWordsIncludingNumbers)
+        .splice(1, 1)
+        .join("");
+
+      monthcount[monthlabels.indexOf(month)] += 1;
     }
 
     // ANALISE AMOUNT OF TOTAL MESSAGES
@@ -281,16 +344,31 @@ export default function Home() {
     wordsamount = wordsamount.splice(0, 8);
     wordcontentdata.labels = wordsnames;
     wordcontentdata.datasets[0].data = wordsamount;
+    wordcontentdata.datasets[0].backgroundColor = [
+      "#19ad8d",
+      "#19aa8b",
+      "#148b72",
+      "#127a64",
+      "#106e5a",
+      "#116e5a",
+      "#106956",
+      "#0c5041",
+    ];
     setWordContentData(wordcontentdata);
 
     // EMOJI ANALYSIS
     [emojiid, emojicount] = zip(
       ...zip(emojiid, emojicount).sort((x, y) => y[1] - x[1])
     );
+    setLongestWord(longestword);
+    setLongestWordAuthor(longestwordauthor);
+    setLongestWordDate(longestworddate);
+
     emojiid = emojiid.splice(0, 8);
     emojicount = emojicount.splice(0, 8);
     emojidata.labels = emojiid;
     emojidata.datasets[0].data = emojicount;
+    emojidata.datasets[0].backgroundColor = "#ebdd21";
 
     setAbsolutEmojiData(emojidata);
     setMostUsedEmoji(emojiid[0]);
@@ -356,6 +434,27 @@ export default function Home() {
 
     setAmountBusiestDay(biggest);
     setBusiestDay(daylabels[i]);
+
+    hoursdata.labels = hourslabels;
+    hoursdata.datasets[0].data = hourscount;
+    hoursdata.datasets[0].backgroundColor = "rgb(185, 99, 255)";
+    hoursdata.datasets[0].borderColor = "rgba(185, 99, 255, 0.2)";
+
+    setHoursData(hoursdata);
+
+    weekdaydata.datasets[0].backgroundColor = "rgb(49, 113, 235)";
+    weekdaydata.datasets[0].borderColor = "rgb(21, 48, 99)";
+    weekdaydata.labels = weekdaylabels;
+    weekdaydata.datasets[0].data = weekdaycount;
+
+    setWeekDayData(weekdaydata);
+
+    monthdata.datasets[0].backgroundColor = "rgb(235, 161, 49)";
+    monthdata.datasets[0].borderColor = "rgb(99, 59, 21)";
+    monthdata.labels = monthlabels;
+    monthdata.datasets[0].data = monthcount;
+
+    setMonthData(monthdata);
 
     setDisplayAll(true);
   }
@@ -526,6 +625,10 @@ export default function Home() {
             ></Bar>
           </div>
           <Text p>{uniqueWords} unique words were used</Text>
+          <Text p>
+            The longest word used was '{longestWord}'. ({longestWordAuthor},{" "}
+            {longestWordDate})
+          </Text>
           <div className={styles.graph}>
             <Bar
               data={wordContentData}
@@ -579,6 +682,27 @@ export default function Home() {
               }}
             ></Line>
           </div>
+          <Text p>All messages visualized by month</Text>
+          <div className={styles.graph}>
+            <Bar
+              data={monthData}
+              options={{ plugins: { legend: { display: false } } }}
+            ></Bar>
+          </div>
+          <Text p>All messages visualized by weekday</Text>
+          <div className={styles.graph}>
+            <Bar
+              data={weekDayData}
+              options={{ plugins: { legend: { display: false } } }}
+            ></Bar>
+          </div>
+          <Text p>All messages visualized by hour</Text>
+          <div className={styles.graph}>
+            <Bar
+              data={hoursData}
+              options={{ plugins: { legend: { display: false } } }}
+            ></Bar>
+          </div>
         </div>
       )}
       <Modal open={modalActive} onClose={closeModal}>
@@ -614,7 +738,7 @@ export default function Home() {
           onClick={activateModal}
           className={styles.wfull}
         >
-          How to?
+          Help
         </Button>
         Made with Heart by <a href="https://github.com/JGStyle">JGS.</a>
       </footer>

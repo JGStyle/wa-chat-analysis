@@ -23,7 +23,7 @@ const matchWordsIncludingNumbers = /[a-zA-Z_\u00C0-\u017F]+|\w+/g;
   author: Josef Schmid aka JGS <jgs@jws.de>
   I made this on vacation, within 3 days.
   Dont be surprised about the bad structured and unmaintainable code,
-  this project is just for fun and taken seriously.
+  this project is just for fun and not taken seriously.
 */
 
 export default function Home() {
@@ -552,7 +552,22 @@ export default function Home() {
   return (
     <div>
       <Head>
-        <title>Analyse your whatsapp chats.</title>
+
+        <title>Analyze your whatsapp chats.</title>
+        <meta
+          name="description"
+          content="analyze your whatsapp chats easily and securly using this tool."
+        />
+        <meta property="og:title" content="Whatsapp Chat analyzation" />
+        <meta property="og:url" content="https://whatsapp.jgs.codes/" />
+        <meta
+          property="og:description"
+          content="Quickly, easily and securly analyze your whatsapp chats."
+        />
+        <meta
+          property="og:image"
+          content="https://whatsapp.jgs.codes/preview.jpg"
+        />
       </Head>
       <div className={styles.maincontainer}>
         <Text h1>Whatsapp chat analysis</Text>
@@ -737,8 +752,8 @@ export default function Home() {
           <Modal.Content>
             <Text p>
               Disclaimer: No data is being sent to any server at any time. All
-              calculation happens locally on your device. (Group chats
-              supported!)
+              calculation happens locally on your device. The source code is
+              publically available(https://link.jgs.codes/RdlsmDq)
             </Text>
             <Text p>
               On iOS: Open Whatsapp → Open the chat you want to analyse → Tap on
@@ -749,10 +764,11 @@ export default function Home() {
               On Android: Open Whatsapp → Open the chat you want to analyse →
               Tap on More options → More → Export chat → Choose without media.
             </Text>
-            <Text p>
+            <Text p b>
               Save the file on your device. If it is a .zip just tap on it once
               to get the .txt file! Normally, the file name should be
-              "_chat.txt"
+              "_chat.txt" → Select the .txt file at the file picker on the front
+              page. Have fun.
             </Text>
           </Modal.Content>
           <Modal.Action passive onClick={closeModal}>

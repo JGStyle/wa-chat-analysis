@@ -23,7 +23,7 @@ const matchWordsIncludingNumbers = /[a-zA-Z_\u00C0-\u017F]+|\w+/g;
   author: Josef Schmid aka JGS <jgs@jws.de>
   I made this on vacation, within 3 days.
   Dont be surprised about the bad structured and unmaintainable code,
-  this project is just for fun and taken seriously.
+  this project is just for fun and not taken seriously.
 */
 
 export default function Home() {
@@ -720,8 +720,8 @@ export default function Home() {
           <Modal.Content>
             <Text p>
               Disclaimer: No data is being sent to any server at any time. All
-              calculation happens locally on your device. (Group chats
-              supported!)
+              calculation happens locally on your device. The source code is
+              publically available(https://link.jgs.codes/RdlsmDq)
             </Text>
             <Text p>
               On iOS: Open Whatsapp → Open the chat you want to analise → Tap on

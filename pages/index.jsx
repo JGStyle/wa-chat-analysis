@@ -537,14 +537,14 @@ export default function Home() {
   }
 
   const checkAllContacts = (contacts) => {
-    setAllChecked(checked => !checked);
+    setAllChecked((checked) => !checked);
     console.log(allChecked);
-    if(allChecked) {
+    if (allChecked) {
       setLimitedContacts(contacts);
     } else {
       setLimitedContacts([]);
     }
-  }
+  };
 
   const activateModal = () => setModalActive(true);
   const closeModal = () => setModalActive(false);
@@ -552,7 +552,6 @@ export default function Home() {
   return (
     <div>
       <Head>
-
         <title>Analyze your whatsapp chats.</title>
         <meta
           name="description"
@@ -605,19 +604,24 @@ export default function Home() {
             <Checkbox
               size="large"
               onClick={() => checkAllContacts(contacts)}
+              className={styles.margin}
             >
               Check all contacts
             </Checkbox>
-            <Checkbox.Group onChange={contactshandler} value={limitedContacts}>
+            <Checkbox.Group
+              onChange={contactshandler}
+              value={limitedContacts}
+              size="large"
+            >
               {contacts.map((contact, index) => (
-                  <Checkbox
-                    size="large"
-                    key={index}
-                    value={contact}
-                    className={styles.block}
-                  >
-                    {contact}
-                  </Checkbox>
+                <Checkbox
+                  size="large"
+                  key={index}
+                  value={contact}
+                  className={styles.block}
+                >
+                  {contact}
+                </Checkbox>
               ))}
             </Checkbox.Group>
             <Spacer y={1} />

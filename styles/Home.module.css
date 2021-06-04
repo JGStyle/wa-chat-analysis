@@ -101,3 +101,9 @@
 .wfull {
   width: 100% !important;
 }
+
+.margin {
+  margin-bottom: 14px;
+  margin-top: 12px;
+  font-weight: 600;
+}

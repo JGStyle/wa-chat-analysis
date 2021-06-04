@@ -732,10 +732,11 @@ export default function Home() {
               On Android: Open Whatsapp → Open the chat you want to analise →
               Tap on More options → More → Export chat → Choose without media.
             </Text>
-            <Text p>
+            <Text p b>
               Save the file on your device. If it is a .zip just tap on it once
               to get the .txt file! Normally, the file name should be
-              "_chat.txt"
+              "_chat.txt" → Select the .txt file at the file picker on the front
+              page. Have fun.
             </Text>
           </Modal.Content>
           <Modal.Action passive onClick={closeModal}>

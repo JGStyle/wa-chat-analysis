@@ -25,6 +25,10 @@
 .fileinput {
   display: none;
 }
+
+.overflow {
+  word-wrap: break-word;
+}
 .filelabel {
   box-sizing: border-box;
   display: inline-block;

@@ -127,6 +127,10 @@ export default function Home() {
       "gelöscht",
       "deleted",
       "message",
+      "http",
+      "https",
+      "com",
+      "de",
     ];
     let longestword = "";
     let longestwordauthor = "";
@@ -575,7 +579,7 @@ export default function Home() {
             <Checkbox.Group onChange={contactshandler} value={[]}>
               {contacts.map((contact, index) => (
                 <Checkbox
-                  size="medium"
+                  size="large"
                   key={index}
                   value={contact}
                   className={styles.block}
@@ -630,7 +634,7 @@ export default function Home() {
               ></Bar>
             </div>
             <Text p>{uniqueWords} unique words were used</Text>
-            <Text p>
+            <Text p className={styles.overflow}>
               The longest word used was '{longestWord}'. ({longestWordAuthor},{" "}
               {longestWordDate})
             </Text>

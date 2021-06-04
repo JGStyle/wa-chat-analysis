@@ -11,6 +11,7 @@ import {
 import { CheckInCircleFill } from "@geist-ui/react-icons";
 import { useEffect, useState } from "react";
 import { Doughnut, Bar, Line } from "react-chartjs-2";
+import Head from "next/head";
 import styles from "../styles/Home.module.css";
 const whatsapp = require("whatsapp-chat-parser");
 const emojiRegex =
@@ -534,214 +535,221 @@ export default function Home() {
   const closeModal = () => setModalActive(false);
 
   return (
-    <div className={styles.maincontainer}>
-      <Text h1>Whatsapp chat analysis</Text>
-      <Text h3>Upload your chat file here</Text>
-      <Text h3>
-        Analysis will start automatically once you select the file.
-      </Text>
-      <Spacer y={1.5} />
+    <div>
+      <Head>
+        <title>Analyze your whatsapp chats.</title>
+      </Head>
+      <div className={styles.maincontainer}>
+        <Text h1>Whatsapp chat analysis</Text>
+        <Text h3>Upload your chat file here</Text>
+        <Text h3>
+          Analysis will start automatically once you select the file.
+        </Text>
+        <Spacer y={1.5} />
 
-      <label for="wafile" className={styles.filelabel}>
-        Choose your file →
-      </label>
-      <input
-        type="file"
-        name="wafile"
-        id="wafile"
-        size="80"
-        className={styles.fileinput}
-      />
-      <Spacer y={0.5} />
+        <label for="wafile" className={styles.filelabel}>
+          Choose your file →
+        </label>
+        <input
+          type="file"
+          name="wafile"
+          id="wafile"
+          size="80"
+          className={styles.fileinput}
+        />
+        <Spacer y={0.5} />
 
-      <Text h3>Read file {progress > 99 && <CheckInCircleFill />} </Text>
-      <Progress value={progress} />
-      <Spacer y={0.5} />
+        <Text h3>Read file {progress > 99 && <CheckInCircleFill />} </Text>
+        <Progress value={progress} />
+        <Spacer y={0.5} />
 
-      <Text h3>
-        Analise Data {analyseProgress > 99 && <CheckInCircleFill />}{" "}
-      </Text>
-      <Progress type="success" value={analyseProgress} />
-      <Spacer y={1.5} />
-      {chooseContacts && (
-        <div className={styles.contactcontainer}>
-          <Text h3>Please choose all contacts to be included.</Text>
-          <Text h4>(If present, Uncheck groupname and System)</Text>
-          <Checkbox.Group onChange={contactshandler} value={[]}>
-            {contacts.map((contact, index) => (
-              <Checkbox
-                size="medium"
-                key={index}
-                value={contact}
-                className={styles.block}
-              >
-                {contact}
-              </Checkbox>
-            ))}
-          </Checkbox.Group>
-          <Spacer y={1} />
-          <Button shadow type="success" onClick={initializeAnalyzation}>
-            I'm done.
+        <Text h3>
+          Analise Data {analyseProgress > 99 && <CheckInCircleFill />}{" "}
+        </Text>
+        <Progress type="success" value={analyseProgress} />
+        <Spacer y={1.5} />
+        {chooseContacts && (
+          <div className={styles.contactcontainer}>
+            <Text h3>Please choose all contacts to be included.</Text>
+            <Text h4>(If present, Uncheck groupname and System)</Text>
+            <Checkbox.Group onChange={contactshandler} value={[]}>
+              {contacts.map((contact, index) => (
+                <Checkbox
+                  size="medium"
+                  key={index}
+                  value={contact}
+                  className={styles.block}
+                >
+                  {contact}
+                </Checkbox>
+              ))}
+            </Checkbox.Group>
+            <Spacer y={1} />
+            <Button shadow type="success" onClick={initializeAnalyzation}>
+              I'm done.
+            </Button>
+            <Spacer y={0.5} />
+          </div>
+        )}
+
+        {displayAll && (
+          <div className={styles.maincontent}>
+            <Text p>
+              Out of all {totalMessages} messages → with {mostMessagesCount}{" "}
+              messages, {mostMessagesAuthor} sent the most messages making up
+              for {Math.floor((mostMessagesCount / totalMessages) * 100)}
+              %.
+            </Text>
+            <div className={styles.graph}>
+              <Doughnut data={countData} width={50} height={50} />
+            </div>
+            <Text p>
+              On average, every message contained {averageWords} words. With{" "}
+              {averageWordsData.datasets[0].data[0]} average words,{" "}
+              {averageWordsData.labels[0]} uses the most words.
+            </Text>
+            <div className={styles.graph}>
+              <Bar
+                data={averageWordsData}
+                width={50}
+                height={50}
+                options={{
+                  plugins: { legend: { display: false } },
+                }}
+              ></Bar>
+            </div>
+            <Text p>In total, {totalWords} words were sent.</Text>
+            <div className={styles.graph}>
+              <Bar
+                data={absoluteWordsData}
+                width={50}
+                height={50}
+                options={{
+                  plugins: { legend: { display: false } },
+                }}
+              ></Bar>
+            </div>
+            <Text p>{uniqueWords} unique words were used</Text>
+            <Text p>
+              The longest word used was '{longestWord}'. ({longestWordAuthor},{" "}
+              {longestWordDate})
+            </Text>
+            <div className={styles.graph}>
+              <Bar
+                data={wordContentData}
+                options={{
+                  indexAxis: "y",
+                  plugins: { legend: { display: false } },
+                }}
+                width={50}
+                height={50}
+              ></Bar>
+            </div>
+            <Text h1 className={styles.single}>
+              {mostUsedEmoji}
+            </Text>
+            <Text p className={styles.single}>
+              is the most used emoji.
+            </Text>
+            <div className={styles.graph}>
+              <Bar
+                data={absolutEmojiData}
+                options={{
+                  indexAxis: "y",
+                  plugins: { legend: { display: false } },
+                }}
+                width={50}
+                height={50}
+              ></Bar>
+            </div>
+            <Text p>
+              {mostEmojisAuthor} is the emoji king. With {mostEmojisCount}{" "}
+              emojis, she/he sent the most.
+            </Text>
+            <Collapse title="Top 3 emojis by person">
+              <Table data={indivEmojis}>
+                <Table.Column prop="author" label="person"></Table.Column>
+                <Table.Column prop="count" label="amount"></Table.Column>
+                <Table.Column prop="index" label="place"></Table.Column>
+                <Table.Column prop="emoji" label="emoji"></Table.Column>
+              </Table>
+            </Collapse>
+
+            <Text p>
+              {amountBusiestDay} messages were sent on {busiestDay} which makes
+              it the busiest day
+            </Text>
+            <div className={styles.graph}>
+              <Line
+                data={dayData}
+                options={{
+                  plugins: { legend: { display: false } },
+                }}
+              ></Line>
+            </div>
+            <Text p>All messages visualized by month</Text>
+            <div className={styles.graph}>
+              <Bar
+                data={monthData}
+                options={{ plugins: { legend: { display: false } } }}
+              ></Bar>
+            </div>
+            <Text p>All messages visualized by weekday</Text>
+            <div className={styles.graph}>
+              <Bar
+                data={weekDayData}
+                options={{ plugins: { legend: { display: false } } }}
+              ></Bar>
+            </div>
+            <Text p>All messages visualized by hour</Text>
+            <div className={styles.graph}>
+              <Bar
+                data={hoursData}
+                options={{ plugins: { legend: { display: false } } }}
+              ></Bar>
+            </div>
+          </div>
+        )}
+        <Modal open={modalActive} onClose={closeModal}>
+          <Modal.Title>How to?</Modal.Title>
+          <Modal.Subtitle>Explanation</Modal.Subtitle>
+          <Modal.Content>
+            <Text p>
+              Disclaimer: No data is being sent to any server at any time. All
+              calculation happens locally on your device. (Group chats
+              supported!)
+            </Text>
+            <Text p>
+              On iOS: Open Whatsapp → Open the chat you want to analise → Tap on
+              the chat name, scroll down → Select Export chat → Choose without
+              media.
+            </Text>
+            <Text p>
+              On Android: Open Whatsapp → Open the chat you want to analise →
+              Tap on More options → More → Export chat → Choose without media.
+            </Text>
+            <Text p>
+              Save the file on your device. If it is a .zip just tap on it once
+              to get the .txt file! Normally, the file name should be
+              "_chat.txt"
+            </Text>
+          </Modal.Content>
+          <Modal.Action passive onClick={closeModal}>
+            Close
+          </Modal.Action>
+        </Modal>
+        <footer className={styles.footer}>
+          <Button
+            shadow
+            type="success"
+            onClick={activateModal}
+            className={styles.wfull}
+          >
+            Help
           </Button>
-          <Spacer y={0.5} />
-        </div>
-      )}
-
-      {displayAll && (
-        <div className={styles.maincontent}>
-          <Text p>
-            Out of all {totalMessages} messages → with {mostMessagesCount}{" "}
-            messages, {mostMessagesAuthor} sent the most messages making up for{" "}
-            {Math.floor((mostMessagesCount / totalMessages) * 100)}
-            %.
-          </Text>
-          <div className={styles.graph}>
-            <Doughnut data={countData} width={50} height={50} />
-          </div>
-          <Text p>
-            On average, every message contained {averageWords} words. With{" "}
-            {averageWordsData.datasets[0].data[0]} average words,{" "}
-            {averageWordsData.labels[0]} uses the most words.
-          </Text>
-          <div className={styles.graph}>
-            <Bar
-              data={averageWordsData}
-              width={50}
-              height={50}
-              options={{
-                plugins: { legend: { display: false } },
-              }}
-            ></Bar>
-          </div>
-          <Text p>In total, {totalWords} words were sent.</Text>
-          <div className={styles.graph}>
-            <Bar
-              data={absoluteWordsData}
-              width={50}
-              height={50}
-              options={{
-                plugins: { legend: { display: false } },
-              }}
-            ></Bar>
-          </div>
-          <Text p>{uniqueWords} unique words were used</Text>
-          <Text p>
-            The longest word used was '{longestWord}'. ({longestWordAuthor},{" "}
-            {longestWordDate})
-          </Text>
-          <div className={styles.graph}>
-            <Bar
-              data={wordContentData}
-              options={{
-                indexAxis: "y",
-                plugins: { legend: { display: false } },
-              }}
-              width={50}
-              height={50}
-            ></Bar>
-          </div>
-          <Text h1 className={styles.single}>
-            {mostUsedEmoji}
-          </Text>
-          <Text p className={styles.single}>
-            is the most used emoji.
-          </Text>
-          <div className={styles.graph}>
-            <Bar
-              data={absolutEmojiData}
-              options={{
-                indexAxis: "y",
-                plugins: { legend: { display: false } },
-              }}
-              width={50}
-              height={50}
-            ></Bar>
-          </div>
-          <Text p>
-            {mostEmojisAuthor} is the emoji king. With {mostEmojisCount} emojis,
-            she/he sent the most.
-          </Text>
-          <Collapse title="Top 3 emojis by person">
-            <Table data={indivEmojis}>
-              <Table.Column prop="author" label="person"></Table.Column>
-              <Table.Column prop="count" label="amount"></Table.Column>
-              <Table.Column prop="index" label="place"></Table.Column>
-              <Table.Column prop="emoji" label="emoji"></Table.Column>
-            </Table>
-          </Collapse>
-
-          <Text p>
-            {amountBusiestDay} messages were sent on {busiestDay} which makes it
-            the busiest day
-          </Text>
-          <div className={styles.graph}>
-            <Line
-              data={dayData}
-              options={{
-                plugins: { legend: { display: false } },
-              }}
-            ></Line>
-          </div>
-          <Text p>All messages visualized by month</Text>
-          <div className={styles.graph}>
-            <Bar
-              data={monthData}
-              options={{ plugins: { legend: { display: false } } }}
-            ></Bar>
-          </div>
-          <Text p>All messages visualized by weekday</Text>
-          <div className={styles.graph}>
-            <Bar
-              data={weekDayData}
-              options={{ plugins: { legend: { display: false } } }}
-            ></Bar>
-          </div>
-          <Text p>All messages visualized by hour</Text>
-          <div className={styles.graph}>
-            <Bar
-              data={hoursData}
-              options={{ plugins: { legend: { display: false } } }}
-            ></Bar>
-          </div>
-        </div>
-      )}
-      <Modal open={modalActive} onClose={closeModal}>
-        <Modal.Title>How to?</Modal.Title>
-        <Modal.Subtitle>Explanation</Modal.Subtitle>
-        <Modal.Content>
-          <Text p>
-            Disclaimer: No data is being sent to any server at any time. All
-            calculation happens locally on your device. (Group chats supported!)
-          </Text>
-          <Text p>
-            On iOS: Open Whatsapp → Open the chat you want to analise → Tap on
-            the chat name, scroll down → Select Export chat → Choose without
-            media.
-          </Text>
-          <Text p>
-            On Android: Open Whatsapp → Open the chat you want to analise → Tap
-            on More options → More → Export chat → Choose without media.
-          </Text>
-          <Text p>
-            Save the file on your device. If it is a .zip just tap on it once to
-            get the .txt file! Normally, the file name should be "_chat.txt"
-          </Text>
-        </Modal.Content>
-        <Modal.Action passive onClick={closeModal}>
-          Close
-        </Modal.Action>
-      </Modal>
-      <footer className={styles.footer}>
-        <Button
-          shadow
-          type="success"
-          onClick={activateModal}
-          className={styles.wfull}
-        >
-          Help
-        </Button>
-        Made with Heart by <a href="https://github.com/JGStyle">JGS.</a>
-      </footer>
+          Made with Heart by <a href="https://github.com/JGStyle">JGS.</a>
+        </footer>
+      </div>
     </div>
   );
 }

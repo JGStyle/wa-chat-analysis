@@ -262,7 +262,7 @@ export default function Home() {
         });
       }
 
-      // ANALISE TIME
+      // ANALYSE TIME
       let monthAndDay = String(message.date)
         .match(matchWordsIncludingNumbers)
         .splice(1, 3)
@@ -296,10 +296,10 @@ export default function Home() {
       monthcount[monthlabels.indexOf(month)] += 1;
     }
 
-    // ANALISE AMOUNT OF TOTAL MESSAGES
+    // ANALYSE AMOUNT OF TOTAL MESSAGES
     let labels = countdata.labels;
     let data = countdata.datasets[0].data;
-    // INSERT ANALISYS OF WORDS
+    // INSERT ANALYSIS OF WORDS
     absoluteworddata.labels = countwordspersonwiseAuthors;
     countwordspersonwiseAmount.forEach((element) => {
       absoluteworddata.datasets[0].data.push(element);
@@ -325,7 +325,7 @@ export default function Home() {
     setMostMessagesCount(data[0]);
     setCountData(countdata);
 
-    // ANALISE AMOUNT OF WORDS
+    // ANALYSE AMOUNT OF WORDS
     [countwordspersonwiseAuthors, countwordspersonwiseAmount] = zip(
       ...zip(countwordspersonwiseAuthors, countwordspersonwiseAmount).sort(
         (x, y) => y[1] - x[1]
@@ -339,7 +339,7 @@ export default function Home() {
     setTotalWords(totalwords);
     setAverageWords((totalwords / messages.length).toPrecision(2));
 
-    // ANALISE WORDS THEMSELVES
+    // ANALYSE WORDS THEMSELVES
     setUniqueWords(Object.keys(wordsamount).length);
 
     [wordsnames, wordsamount] = zip(
@@ -421,7 +421,7 @@ export default function Home() {
     setEmojiAuthors(emojiAuthors);
     setEmojiPersonwise(emojiPersonwise);
 
-    // ANALISE TIME
+    // ANALYSE TIME
     daydata.labels = daylabels;
     daydata.datasets[0].data = daycount;
     daydata.datasets[0].backgroundColor = "rgb(255, 99, 132)";

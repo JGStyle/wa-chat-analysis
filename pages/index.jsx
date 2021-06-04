@@ -374,7 +374,16 @@ export default function Home() {
     emojicount = emojicount.splice(0, 8);
     emojidata.labels = emojiid;
     emojidata.datasets[0].data = emojicount;
-    emojidata.datasets[0].backgroundColor = "#ebdd21";
+    emojidata.datasets[0].backgroundColor = [
+      "#ebdd21",
+      "#e2d520",
+      "#cec21e",
+      "#b6ab1a",
+      "#a79d1a",
+      "#9b9219",
+      "#8a8216",
+      "#797212",
+    ];
 
     setAbsolutEmojiData(emojidata);
     setMostUsedEmoji(emojiid[0]);
@@ -576,7 +585,7 @@ export default function Home() {
         </Text>
         <Spacer y={1.5} />
 
-        <label for="wafile" className={styles.filelabel}>
+        <label htmlFor="wafile" className={styles.filelabel}>
           Choose your file →
         </label>
         <input

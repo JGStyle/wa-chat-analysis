@@ -78,6 +78,14 @@ export default function Home() {
   const [weekDayData, setWeekDayData] = useState({});
   const [monthData, setMonthData] = useState({});
 
+  function generateColors(colorsobj, authorslist) {
+    let res = [];
+    authorslist.forEach((author) => {
+      res.push(colorsobj[author]);
+    });
+    return res;
+  }
+
   function processData(messages) {
     let zip = (...a) => a[0].map((_, n) => a.map((b) => b[n]));
     setAnalyseProgress(100);
@@ -101,6 +109,9 @@ export default function Home() {
         },
       ],
     };
+    // MAP COLORS TO PERSONS
+    let coloridentifier = {};
+
     // ANALISE AMOUNT OF TOTAL MESSAGES
     let countdata = JSON.parse(JSON.stringify(dataPreset));
     // ANALISE AMOUNT OF WORDS
@@ -310,6 +321,18 @@ export default function Home() {
         (x, y) => y[1] - x[1]
       )
     );
+
+    countwordspersonwiseAuthors.forEach((author, index) => {
+      coloridentifier[author] =
+        absoluteworddata.datasets[0].backgroundColor[
+          index % absoluteworddata.datasets[0].backgroundColor.length
+        ];
+    });
+
+    absoluteworddata.datasets[0].backgroundColor = generateColors(
+      coloridentifier,
+      absoluteworddata.labels
+    );
     setAbsoluteWordsData(absoluteworddata);
 
     for (let i = 0; i < countwordspersonwiseAmount.length; i++) {
@@ -322,6 +345,10 @@ export default function Home() {
 
     countdata.labels = labels;
     countdata.datasets[0].data = data;
+    countdata.datasets[0].backgroundColor = generateColors(
+      coloridentifier,
+      labels
+    );
     setMostMessagesAuthor(labels[0]);
     setMostMessagesCount(data[0]);
     setCountData(countdata);
@@ -335,6 +362,10 @@ export default function Home() {
 
     worddata.labels = countwordspersonwiseAuthors;
     worddata.datasets[0].data = countwordspersonwiseAmount;
+    worddata.datasets[0].backgroundColor = generateColors(
+      coloridentifier,
+      countwordspersonwiseAuthors
+    );
 
     setAverageWordsData(worddata);
     setTotalWords(totalwords);

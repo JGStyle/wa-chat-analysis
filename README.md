@@ -1,2 +1,3 @@
-Visit 
-whatsapp.jgs.codes
+get detailed information about your whatsapp chat!
+
+https://whatsapp.jgsdev.de

@@ -797,7 +797,7 @@ export default function Home() {
             <Text p>
               Disclaimer: No data is being sent to any server at any time. All
               calculation happens locally on your device. The source code is
-              publically available(https://link.jgs.codes/RdlsmDq)
+              publically available (https://link.jgsdev.de/JnukCQw)
             </Text>
             <Text p>
               On iOS: Open Whatsapp → Open the chat you want to analyse → Tap on
@@ -809,7 +809,7 @@ export default function Home() {
               Tap on More options → More → Export chat → Choose without media.
             </Text>
             <Text p b>
-              Save the file on your device. If it is a .zip just tap on it once
+              Save the file on your device. If it is a .zip archive just tap on it once
               to get the .txt file! Normally, the file name should be
               "_chat.txt" → Select the .txt file at the file picker on the front
               page. Have fun.

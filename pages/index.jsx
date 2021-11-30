@@ -797,7 +797,7 @@ export default function Home() {
             <Text p>
               Disclaimer: No data is being sent to any server at any time. All
               calculation happens locally on your device. The source code is
-              publically available (https://link.jgsdev.de/JnukCQw)
+              publically available <a href="https://link.jgsdev.de/JnukCQw">https://link.jgsdev.de/JnukCQw</a>
             </Text>
             <Text p>
               On iOS: Open Whatsapp → Open the chat you want to analyse → Tap on
